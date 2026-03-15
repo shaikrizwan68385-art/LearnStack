@@ -72,8 +72,17 @@
 @layer base {
   * {
     border-color: var(--color-border);
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  .transition-all {
     transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
     transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   body {
