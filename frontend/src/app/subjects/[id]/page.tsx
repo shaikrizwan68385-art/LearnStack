@@ -95,11 +95,11 @@ export default function SubjectDetailsPage() {
 
     const handleStateChange = (event: YouTubeEvent) => {
         const player = event.target;
-        if (event.data === 1) {
+        if (event.data === 1) { // Playing
             if (!saveInterval.current) {
-                saveInterval.current = setInterval(async () => {
-                    const time = await player.getCurrentTime();
-                    const duration = await player.getDuration();
+                saveInterval.current = setInterval(() => {
+                    const time = player.getCurrentTime();
+                    const duration = player.getDuration();
                     if (duration > 0) {
                         const isCompleted = time / duration >= 0.8;
                         saveProgress(time, isCompleted);
@@ -109,8 +109,9 @@ export default function SubjectDetailsPage() {
         } else {
             if (saveInterval.current) clearInterval(saveInterval.current);
             saveInterval.current = null;
-            if (event.data === 0) {
-                player.getCurrentTime().then((time: number) => saveProgress(time, true));
+            if (event.data === 0) { // Ended
+                const time = player.getCurrentTime();
+                saveProgress(time, true);
             }
         }
     };
