@@ -1,0 +1,37 @@
+# Vercel Ignore File
+# This file specifies which files and directories should be ignored by Vercel deployments.
+
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build outputs
+.next/
+dist/
+build/
+frontend/.next/
+
+# Environment variables
+.env*
+*.local
+backend/.env
+frontend/.env
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+lms.db
+backend/lms.db
+
+# Logs and transient files
+*.log
+*.txt
+!README.md
+
+# OS/IDE files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
