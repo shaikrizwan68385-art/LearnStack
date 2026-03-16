@@ -4,10 +4,10 @@ import { getUserFromRequest } from '../../../../../lib/auth';
 
 export async function POST(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const subjectId = params.id;
+        const { id: subjectId } = await params;
         const user = getUserFromRequest(request);
 
         if (!user) {
