@@ -12,8 +12,8 @@ const getBaseURL = () => {
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             return `http://${hostname}:5000/api`;
         }
-        // Fallback for production if no env is set (though env is preferred)
-        return `https://${hostname}/api`;
+        // Use relative path for Vercel/Production to hit Next.js API routes
+        return '/api';
     }
     return 'http://localhost:5000/api';
 };
