@@ -5,8 +5,11 @@ dotenv.config();
 
 // Vercel & Railway Deployment: Use the single DATABASE_URL string provided by Railway
 // This is more reliable as it includes the external hostname, credentials, and port in one go.
-const pool = process.env.DATABASE_URL 
-  ? mysql.createPool(process.env.DATABASE_URL)
+// Vercel & Railway Deployment: Support multiple URL formats including DB_PUBLIC_URL as seen in your Vercel dash
+const dbUrl = process.env.DATABASE_URL || process.env.DB_PUBLIC_URL;
+
+const pool = dbUrl 
+  ? mysql.createPool(dbUrl)
   : mysql.createPool({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
@@ -17,6 +20,14 @@ const pool = process.env.DATABASE_URL
         rejectUnauthorized: false
       }
     });
+
+// Ensure pool settings for high availability
+pool.getConnection().then(conn => {
+  console.log('✅ Connection Pool Ready');
+  conn.release();
+}).catch(err => {
+  console.error('❌ Pool initialization failed:', err.message);
+});
 
 
 // Wrapper to execute queries with standardized result formatting
