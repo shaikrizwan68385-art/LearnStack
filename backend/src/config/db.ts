@@ -3,22 +3,21 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Vercel-compatible MySQL Connection configuration
-// Replace all hardcoded localhost/127.0.0.1 with environment variables
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: parseInt(process.env.DB_PORT || '3306'),
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  // SSL is often required for cloud MySQL providers (Aiven, DigitalOcean, etc.)
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+// Vercel & Railway Deployment: Use the single DATABASE_URL string provided by Railway
+// This is more reliable as it includes the external hostname, credentials, and port in one go.
+const pool = process.env.DATABASE_URL 
+  ? mysql.createPool(process.env.DATABASE_URL)
+  : mysql.createPool({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      port: parseInt(process.env.DB_PORT || '3306'),
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+
 
 // Wrapper to execute queries with standardized result formatting
 export const executeQuery = async (query: string, params: any[] = []): Promise<any> => {
