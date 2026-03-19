@@ -3,21 +3,54 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, Send, X, MessageSquare, Sparkles, User, BrainCircuit } from 'lucide-react';
 import clsx from 'clsx';
+import api from '@/lib/axios';
 
 export default function FloatingAI() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{ role: 'ai' | 'user'; text: string }[]>([
-        { role: 'ai', text: 'Hello! I am your LearnStack AI Assistant. How can I help you today?' }
+        { role: 'ai', text: 'Hello! I am StackAI, your LearnStack learning companion. How can I help you today?' }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleOpen = () => setIsOpen(true);
-        window.addEventListener('open-ai', handleOpen);
-        return () => window.removeEventListener('open-ai', handleOpen);
+        const handleOpen = (e: any) => {
+            setIsOpen(true);
+            if (e.detail && e.detail.query) {
+                // We use a small timeout to ensure the chat window is open before sending
+                setTimeout(() => {
+                    handleAutoQuery(e.detail.query);
+                }, 100);
+            }
+        };
+        window.addEventListener('open-ai' as any, handleOpen);
+        return () => window.removeEventListener('open-ai' as any, handleOpen);
     }, []);
+
+    const handleAutoQuery = async (query: string) => {
+        const userMessage = query.trim();
+        setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+        setIsTyping(true);
+
+        try {
+            const { data } = await api.post('/ai/chat', { 
+                query: userMessage,
+                history: [] // No history for auto-query
+            });
+
+            if (data && data.response) {
+                setMessages(prev => [...prev, { role: 'ai', text: data.response }]);
+            } else {
+                setMessages(prev => [...prev, { role: 'ai', text: "I'm sorry, I couldn't process that. Please try again." }]);
+            }
+        } catch (error) {
+            console.error('AI error:', error);
+            setMessages(prev => [...prev, { role: 'ai', text: "Oops! I'm having trouble connecting right now." }]);
+        } finally {
+            setIsTyping(false);
+        }
+    };
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -25,61 +58,37 @@ export default function FloatingAI() {
         }
     }, [messages]);
 
-    const getAIResponse = (query: string): string => {
-        const q = query.toLowerCase();
-
-        // AI Definitions
-        if (q.includes('what is ai') || q.includes('artificial intelligence')) {
-            return "Artificial Intelligence (AI) is the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction. On LearnStack, we use AI to personalize your learning paths and help you master complex topics faster.";
-        }
-
-        // Subject Specifics
-        if (q.includes('java')) {
-            return "Java is a high-level, class-based, object-oriented programming language. Our 'Java Full Stack Development' course covers everything from Core Java fundamentals to building robust backends with Spring Boot and integrating them with modern React frontends. It's a great choice for enterprise-level applications.";
-        }
-        if (q.includes('python') || q.includes('data science')) {
-            return "Python is the leading language for Data Science due to its simplicity and powerful libraries. Our 'Data Science with Python' course dives deep into NumPy for numerical data, Pandas for data manipulation, and Scikit-Learn for Machine Learning. You'll learn to build predictive models from scratch!";
-        }
-        if (q.includes('web development') || q.includes('next.js') || q.includes('react')) {
-            return "Web Development is rapidly evolving with frameworks like Next.js. Our 'Full-Stack Web Development' course teaches you how to build fast, SEO-friendly applications using React, Node.js, and modern CSS. You'll master Server Actions, Routing, and Database integration.";
-        }
-
-        // Feature & Career Questions
-        if (q.includes('payment') || q.includes('enroll') || q.includes('cost') || q.includes('buy')) {
-            return "You can enroll in any course for just ₹499. We support secure payments via Google Pay and PhonePe. Once you complete the payment, the course modules and certificates will be instantly unlocked for your account.";
-        }
-        if (q.includes('certificate') || q.includes('job') || q.includes('placement')) {
-            return "Yes! Upon completing any LearnStack course with at least 90% progress, you will receive an industry-recognized certificate. Our curriculum is designed based on current job market requirements to help you land your dream role in tech.";
-        }
-        if (q.includes('how to start') || q.includes('beginner')) {
-            return "If you're new to coding, I recommend starting with 'Python Basics' or 'Introduction to Web Development'. These courses are beginner-friendly and provide a solid foundation. Which area interests you more: Web Apps or Data Analysis?";
-        }
-
-        // Greetings & Identity
-        if (q.includes('hello') || q.includes('hi ') || q.includes('hey')) {
-            return "Hello! I'm StackAI, your dedicated learning companion. I can help you understand complex concepts, choose the right course, or help with enrollment. What's on your mind today?";
-        }
-        if (q.includes('who are you') || q.includes('what can you do')) {
-            return "I am StackAI, an intelligent assistant built into LearnStack. I can explain coding concepts, provide course roadmaps, help with technical issues, and guide you through your learning journey.";
-        }
-
-        return "That's an interesting question! While I'm still learning, I can tell you that following your current LearnStack module is the best way to progress. Would you like me to explain a specific topic from your course or help you with enrollment details?";
-    };
-
     const handleSend = async () => {
-        if (!input.trim()) return;
+        if (!input.trim() || isTyping) return;
 
         const userMessage = input.trim();
         setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
         setInput('');
         setIsTyping(true);
 
-        // Simulate AI Response processing
-        setTimeout(() => {
-            const aiResponse = getAIResponse(userMessage);
-            setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
+        try {
+            // Prepare history for the backend (limit to last 5 messages for context)
+            const history = messages.slice(-5).map(msg => ({
+                role: msg.role === 'ai' ? 'assistant' : 'user',
+                content: msg.text
+            }));
+
+            const { data } = await api.post('/ai/chat', { 
+                query: userMessage,
+                history: history
+            });
+
+            if (data && data.response) {
+                setMessages(prev => [...prev, { role: 'ai', text: data.response }]);
+            } else {
+                setMessages(prev => [...prev, { role: 'ai', text: "I'm sorry, I couldn't process that. Please try again." }]);
+            }
+        } catch (error) {
+            console.error('AI error:', error);
+            setMessages(prev => [...prev, { role: 'ai', text: "Oops! I'm having trouble connecting right now. Please check your internet or try again later." }]);
+        } finally {
             setIsTyping(false);
-        }, 1200);
+        }
     };
 
     return (

@@ -4,12 +4,20 @@ import { useEffect, useState } from 'react';
 import api from '../../lib/axios';
 import { useAuthStore } from '../../store/useAuthStore';
 import Link from 'next/link';
-import { BookOpen, Clock, ChevronRight, Sparkles } from 'lucide-react';
+import { BookOpen, Clock, ChevronRight, Sparkles, Search, Wand2 } from 'lucide-react';
 
 export default function DashboardPage() {
     const { user } = useAuthStore();
     const [subjects, setSubjects] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!searchQuery.trim()) return;
+        window.dispatchEvent(new CustomEvent('open-ai', { detail: { query: searchQuery } }));
+        setSearchQuery('');
+    };
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -39,12 +47,40 @@ export default function DashboardPage() {
                     <Sparkles size={20} />
                     <span className="text-sm font-bold tracking-[0.2em] uppercase">Student Dashboard</span>
                 </div>
-                <h1 className="text-5xl font-black tracking-tighter mb-4">
-                    Welcome back, <span className="text-gradient">{user?.name}</span>!
-                </h1>
-                <p className="text-lg text-muted-foreground font-light max-w-2xl">
-                    You're doing great! Continue your journey where you left off or explore new horizons.
-                </p>
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                    <div>
+                        <h1 className="text-5xl font-black tracking-tighter mb-4">
+                            Welcome back, <span className="text-gradient">{user?.name}</span>!
+                        </h1>
+                        <p className="text-lg text-muted-foreground font-light max-w-2xl">
+                            You're doing great! Continue your journey where you left off or explore new horizons.
+                        </p>
+                    </div>
+
+                    {/* AI Search Bar */}
+                    <form 
+                        onSubmit={handleSearch}
+                        className="relative max-w-md w-full group"
+                    >
+                        <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition duration-500" />
+                        <div className="relative flex items-center">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Ask StackAI about your courses..."
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-14 text-sm focus:outline-none focus:border-primary/50 transition-all placeholder:text-gray-600"
+                            />
+                            <Search className="absolute left-4 text-gray-600 group-focus-within:text-primary transition-colors" size={18} />
+                            <button 
+                                type="submit"
+                                className="absolute right-2 w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all active:scale-95"
+                            >
+                                <Wand2 size={18} />
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             {/* Courses Section */}
