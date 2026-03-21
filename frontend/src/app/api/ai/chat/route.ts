@@ -9,9 +9,15 @@ export async function POST(request: Request) {
         const body = await request.json();
         query = body.query;
         history = body.history;
-        const API_KEY = process.env.HUGGINGFACE_API_KEY;
+        let API_KEY = process.env.HUGGINGFACE_API_KEY || "";
+        
+        // Clean the API key in case the user accidentally pasted "Bearer " or has whitespace
+        let cleanApiKey = API_KEY.trim();
+        if (cleanApiKey.startsWith('Bearer ')) {
+            cleanApiKey = cleanApiKey.replace('Bearer ', '');
+        }
 
-        if (!API_KEY) {
+        if (!cleanApiKey) {
             console.error('❌ HUGGINGFACE_API_KEY is missing in environment variables');
             return NextResponse.json({ 
                 response: "I'm currently missing my AI brain. Please set HUGGINGFACE_API_KEY in Vercel." 
@@ -40,7 +46,7 @@ export async function POST(request: Request) {
             "https://router.huggingface.co/v1/chat/completions",
             {
                 headers: { 
-                    "Authorization": `Bearer ${API_KEY}`,
+                    "Authorization": `Bearer ${cleanApiKey}`,
                     "Content-Type": "application/json"
                 },
                 method: "POST",
@@ -56,7 +62,10 @@ export async function POST(request: Request) {
         if (!hf_response.ok) {
             const errData = await hf_response.json();
             console.error('❌ Hugging Face Error:', errData);
-            throw new Error(errData.error?.message || 'API Request Failed');
+            const errorMessage = errData.error?.message || errData.error || 'Unknown Error';
+            return NextResponse.json({ 
+                response: `[Hugging Face Error]: ${errorMessage}. Please check your API key and Vercel environment variables.` 
+            });
         }
 
         const result: any = await hf_response.json();
@@ -69,21 +78,8 @@ export async function POST(request: Request) {
 
     } catch (error: any) {
         console.error('❌ StackAI Error:', error);
-        
-        // High-quality local fallback strategy for maximum reliability
-        const q = (query || "").toLowerCase();
-        let fallback = "I'm your global learning assistant. I can answer questions about science, technology, history, and the professional world! I'm currently in high-performance mode, so please ask clearly.";
-        
-        if (q.includes('capital') || q.includes('country') || q.includes('world')) {
-            fallback = "Exploring the world is fascinating! As your AI tutor, I suggest checking our 'Global Studies' subjects to learn more about geography and international relations. Master your current courses to expand your horizons!";
-        } else if (q.includes('who is') || q.includes('tell me about')) {
-            fallback = `That's a significant topic! You should explore our related subjects once you've completed your foundational tasks. Master ${query} to reach new professional heights!`;
-        } else if (q.includes('what is') || q.includes('how')) {
-            fallback = `Understanding "${query}" is a key step in your learning journey. LearnStack provides structured paths to master such concepts. Check out our 'Course Catalog' to see how this fits into your career roadmap!`;
-        } else if (q.includes('react') || q.includes('next') || q.includes('web')) {
-            fallback = "Full-Stack Web Development is one of our flagship subjects! Start with the basics of React and Next.js to build modern, high-performance applications.";
-        }
-
-        return NextResponse.json({ response: fallback });
+        return NextResponse.json({ 
+            response: `StackAI Connection Error: ${error.message}. Try disabling Edge Runtime if this persists, or verify the API key at Hugging Face.` 
+        });
     }
 }
