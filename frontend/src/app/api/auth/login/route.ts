@@ -45,12 +45,21 @@ export async function POST(request: Request) {
         });
     } catch (error: any) {
         console.error('Login error:', error);
+        
+        // Context-aware hints for the user
+        let hint = undefined;
+        if (['ECONNREFUSED', 'ER_ACCESS_DENIED_ERROR', 'ENOTFOUND', 'ETIMEDOUT'].includes(error.code)) {
+            hint = 'Database connection failed. Please verify DB_HOST, DB_USER, DB_PASSWORD, and DB_NAME in Vercel Environment Variables.';
+        } else if (error.code === 'ER_NO_SUCH_TABLE') {
+            hint = 'Table missing. Auto-initialization should fix this on the next request. If it persists, check your DB permissions.';
+        }
+
         return NextResponse.json(
             {
                 message: 'Error logging in',
                 error: error.message,
                 code: error.code,
-                hint: 'Missing database connection. Please set DB_HOST, DB_USER, DB_PASSWORD, and DB_NAME in Vercel Environment Variables.'
+                hint: hint
             },
             { status: 500 }
         );
