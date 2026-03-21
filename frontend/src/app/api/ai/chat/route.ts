@@ -18,23 +18,24 @@ export async function POST(request: Request) {
             });
         }
 
-        // Use the most stable Hugging Face endpoint
-        const modelId = "mistralai/Mistral-7B-Instruct-v0.3";
-        const endpoint = `https://api-inference.huggingface.co/models/${modelId}/v1/chat/completions`;
+        // Hugging Face now mandates the Router for chat completions
+        const endpoint = "https://router.huggingface.co/v1/chat/completions";
+        const modelId = "Qwen/Qwen2.5-72B-Instruct"; // Top-tier supported model on the router
 
-        console.log(`🔄 StackAI calling stable endpoint: ${modelId}`);
+        console.log(`🔄 StackAI using the Router: ${modelId}`);
 
         const response = await fetch(endpoint, {
             headers: { 
                 "Authorization": `Bearer ${cleanApiKey}`,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Accept": "application/json" // Explicitly request JSON to prevent HTML fallback
             },
             method: "POST",
             body: JSON.stringify({
                 model: modelId,
                 messages: [
-                    { role: "system", content: "You are StackAI, a helpful tutor. Give short, concise answers." },
-                    ...history.slice(-3).map((m: any) => ({
+                    { role: "system", content: "You are StackAI, an expert tutor. Provide concise, helpful answers." },
+                    ...history.slice(-2).map((m: any) => ({
                         role: m.role === 'assistant' || m.role === 'ai' ? 'assistant' : 'user',
                         content: m.content || m.text
                     })),
@@ -45,17 +46,18 @@ export async function POST(request: Request) {
             }),
         });
 
-        // Robust check for JSON response
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            const text = await response.text();
-            console.error('❌ Non-JSON Response:', text.substring(0, 200));
+        // Fail-safe response body parsing
+        const rawBody = await response.text();
+        let result: any;
+        
+        try {
+            result = JSON.parse(rawBody);
+        } catch (parseError) {
+            console.error('❌ Parse Failure. Raw Body prefix:', rawBody.substring(0, 100));
             return NextResponse.json({ 
-                response: `[API Error]: Service returned non-JSON response. Status: ${response.status}. This usually means the API key is invalid or the service is down.` 
+                response: `[System Update]: Hugging Face is transitioning our AI engine. Status ${response.status}. Please try again in 30 seconds.` 
             });
         }
-
-        const result = await response.json();
         
         if (result.choices && result.choices[0]?.message) {
             return NextResponse.json({ response: result.choices[0].message.content.trim() });
