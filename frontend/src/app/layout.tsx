@@ -4,8 +4,8 @@ import AuthProvider from '../components/AuthProvider';
 import FloatingAI from '../components/FloatingAI';
 
 export const metadata: Metadata = {
-  title: 'LearnStack Platform',
-  description: 'Professional Learning Management System with Premium UI',
+  title: 'Quest Academy',
+  description: 'Premium Academy for Modern Learning',
   icons: {
     icon: '/favicon.svg',
   }

@@ -36,7 +36,7 @@ export default function Register() {
 
             <div className="w-full max-w-md glass-card rounded-[2.5rem] shadow-2xl p-10 relative z-10">
                 <div className="mb-10 text-center">
-                    <h2 className="text-4xl font-black tracking-tight mb-2">Join LearnStack</h2>
+                    <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">Join Quest Academy</h1>
                     <p className="text-muted-foreground font-light">Start your professional journey today</p>
                 </div>
 
@@ -56,7 +56,7 @@ export default function Register() {
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                         <input
                             type="email"
-                            placeholder="Email address"
+                            placeholder="Ask QuestAI about your courses..."
                             className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 text-foreground rounded-2xl focus:outline-none focus:border-primary/50 transition-all font-light"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}

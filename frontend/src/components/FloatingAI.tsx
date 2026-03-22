@@ -139,7 +139,7 @@ export default function FloatingAI() {
                                     {msg.text}
                                 </div>
                                 <span className="text-[9px] font-bold text-gray-500 mt-2 uppercase tracking-tighter flex items-center gap-1">
-                                    {msg.role === 'user' ? <>YOU <User size={8} /></> : <><Bot size={8} /> STACK-AI</>}
+                                    {msg.role === 'user' ? <>YOU <User size={8} /></> : <><Bot size={8} /> QUEST-AI</>}
                                 </span>
                             </div>
                         ))}
