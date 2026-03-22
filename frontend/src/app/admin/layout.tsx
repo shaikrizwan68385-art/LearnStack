@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="w-64 bg-card border-r shadow-sm flex flex-col justify-between hidden md:flex">
                 <div>
                     <div className="p-6">
-                        <h1 className="text-2xl font-bold tracking-tight text-primary">LMS Admin</h1>
+                        <h1 className="text-2xl font-bold tracking-tight text-primary">Quest Admin</h1>
                     </div>
                     <nav className="mt-4 px-4 space-y-2">
                         <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-medium hover:bg-primary/20 transition">

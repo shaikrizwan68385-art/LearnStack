@@ -70,19 +70,23 @@ export const getAIResponse = async (req: Request, res: Response) => {
             try {
                 const subjects = await executeQuery(
                     "SELECT title, description FROM subjects WHERE title LIKE ? OR description LIKE ? LIMIT 1",
-                    [`%${query}%`, `%${query}%`]
-                );
-                
-                if (subjects && subjects.length > 0) {
-                    response = `Regarding "${query}", this is part of our "${subjects[0].title}" course. ${subjects[0].description}. Explore our course catalog to master these skills!`;
-                } else {
-                    response = `I am currently optimizing my global knowledge for "${query}". In the meantime, checkout our professional courses in Full-Stack Web Development, Data Science, and Mobile App programming to accelerate your career!`;
-                }
-            } catch (dbError) {
-                response = "StackAI is currently upgrading its global brain. Please try again in a few moments!";
+        // Enhanced Local Search from DB
+        try {
+            const subjects = await executeQuery(
+                "SELECT title, description FROM subjects WHERE title LIKE ? OR description LIKE ? LIMIT 1",
+                [`%${query}%`, `%${query}%`]
+            );
+            
+            if (subjects && subjects.length > 0) {
+                response = `Regarding "${query}", this is part of our "${subjects[0].title}" course. ${subjects[0].description}. Explore our course catalog to master these skills!`;
+            } else {
+                response = getFallbackResponse(query);
             }
+        } catch (dbError) {
+            response = "StackAI is currently upgrading its global brain. Please try again in a few moments!";
         }
 
         return res.json({ response });
     }
 };
+```

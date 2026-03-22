@@ -28,7 +28,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', message: 'LMS API is running' });
+  res.json({ status: 'ok', message: 'Quest Academy API is running' });
 });
 
 // Initialize DB then start server
