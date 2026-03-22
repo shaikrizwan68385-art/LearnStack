@@ -6,17 +6,9 @@ const getBaseURL = () => {
         return process.env.NEXT_PUBLIC_API_URL;
     }
 
-    if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
-        // In local development, use port 5000.
-        // In production (Vercel), we MUST have NEXT_PUBLIC_API_URL set.
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return `http://${hostname}:5000/api`;
-        }
-    }
-    
-    // Default fallback to local backend for safety
-    return 'http://localhost:5000/api';
+    // STANDALONE MODE: Use Next.js API Routes in the same frontend
+    // This ensures Vercel works even if the user hasn't deployed a separate backend.
+    return '/api';
 };
 
 const api = axios.create({
