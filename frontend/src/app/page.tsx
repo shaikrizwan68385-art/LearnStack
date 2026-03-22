@@ -24,7 +24,7 @@ export default function Home() {
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
             <BookOpen className="text-white" size={20} />
           </div>
-          <span className="text-xl font-bold tracking-tight">Learn<span className="text-primary">Stack</span></span>
+          <span className="text-xl font-bold tracking-tight">Quest<span className="text-primary">Academy</span></span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
           <Link href="#" className="hover:text-foreground transition">Courses</Link>
