@@ -2,8 +2,40 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
     const { query } = await req.json();
+    const API_KEY = process.env.HUGGINGFACE_API_KEY;
 
-    // Standalone QuestAI Mock Logic
+    // 1. Try Real AI if API Key is present
+    if (API_KEY && API_KEY !== 'your_token_here') {
+        try {
+            const response = await fetch(
+                "https://router.huggingface.co/v1/chat/completions",
+                {
+                    method: "POST",
+                    headers: { 
+                        "Authorization": `Bearer ${API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "Qwen/Qwen2.5-72B-Instruct",
+                        messages: [
+                            { role: "system", content: "You are QuestAI, a professional academy tutor. Be helpful and direct." },
+                            { role: "user", content: query }
+                        ],
+                        max_tokens: 500,
+                    }),
+                }
+            );
+
+            const result: any = await response.json();
+            if (result.choices && result.choices[0] && result.choices[0].message) {
+                return NextResponse.json({ response: result.choices[0].message.content });
+            }
+        } catch (error) {
+            console.error('QuestAI API Error:', error);
+        }
+    }
+
+    // 2. Standalone QuestAI Mock Logic (Fallback)
     const lowercaseQuery = (query || "").toLowerCase();
     let response = "";
 
