@@ -1,15 +1,15 @@
-USE lms_db;
+-- USE lms_db; -- Not needed for SQLite
 
-INSERT IGNORE INTO users (id, name, email, password, role) VALUES 
+INSERT OR IGNORE INTO users (id, name, email, password, role) VALUES 
 (1, 'Admin User', 'admin@lms.com', '$2a$10$wT2HlD0R9GIt2fKkVt9Y4e1h5eG38/N7hL/QOa0LgIfQ0S9s9/4wW', 'ADMIN'), -- password: password
 (2, 'Student User', 'student@lms.com', '$2a$10$wT2HlD0R9GIt2fKkVt9Y4e1h5eG38/N7hL/QOa0LgIfQ0S9s9/4wW', 'STUDENT');
 
-INSERT IGNORE INTO subjects (id, title, description, order_index) VALUES 
+INSERT OR IGNORE INTO subjects (id, title, description, order_index) VALUES 
 (1, 'Full-Stack Web Development', 'Learn Next.js and Node.js', 1),
 (2, 'Data Science with Python', 'Learn Pandas, NumPy, and Machine Learning', 2),
 (3, 'Java Full Stack Development', 'Master Core Java, Spring Boot, MySQL, and Frontend Integration', 3);
 
-INSERT IGNORE INTO sections (id, subject_id, title, order_index) VALUES 
+INSERT OR IGNORE INTO sections (id, subject_id, title, order_index) VALUES 
 (1, 1, 'Introduction to React & Next.js', 1),
 (2, 1, 'Advanced Next.js Concepts', 2),
 (3, 2, 'Python Basics', 1),
@@ -18,7 +18,7 @@ INSERT IGNORE INTO sections (id, subject_id, title, order_index) VALUES
 (6, 3, 'Backend Development with Spring', 2),
 (7, 3, 'Full Stack Integration', 3);
 
-INSERT IGNORE INTO videos (id, section_id, title, video_url, duration, order_index) VALUES 
+INSERT OR IGNORE INTO videos (id, section_id, title, video_url, duration, order_index) VALUES 
 (1, 1, 'What is Next.js?', 'https://www.youtube.com/watch?v=Sklc_fQBmcs', 600, 1),
 (2, 1, 'Routing in Next.js', 'https://www.youtube.com/watch?v=wm5gMKuwSYk', 800, 2),
 (3, 2, 'Server Actions', 'https://www.youtube.com/watch?v=dDpZfOQBMaU', 1200, 1),

@@ -53,7 +53,7 @@ export const enrollSubject = async (req: AuthRequest, res: Response) => {
     try {
         const subjectId = req.params.id;
         const userId = req.user!.id;
-        await executeQuery('INSERT IGNORE INTO enrollments (user_id, subject_id) VALUES (?, ?)', [userId, subjectId]);
+        await executeQuery('INSERT INTO enrollments (user_id, subject_id) VALUES (?, ?) ON CONFLICT(user_id, subject_id) DO NOTHING', [userId, subjectId]);
         res.json({ message: 'Enrolled successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error enrolling', error: String(error) });

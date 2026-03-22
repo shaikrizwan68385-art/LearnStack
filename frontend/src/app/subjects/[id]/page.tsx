@@ -26,6 +26,11 @@ export default function SubjectDetailsPage() {
             try {
                 const { data } = await api.get(`/courses/${id}`);
                 setSubject(data);
+                
+                // Auto-select first video if enrolled and data exists
+                if (data.isEnrolled && data.sections.length > 0 && data.sections[0].videos.length > 0) {
+                    setActiveVideo(data.sections[0].videos[0]);
+                }
             } catch (error) {
                 console.error('Failed to load subject', error);
             } finally {
@@ -49,12 +54,19 @@ export default function SubjectDetailsPage() {
         try {
             await api.post(`/courses/${id}/enroll`);
             setSubject({ ...subject, isEnrolled: true });
+            
+            // Auto-select first video after enrollment
+            if (subject.sections.length > 0 && subject.sections[0].videos.length > 0) {
+                setActiveVideo(subject.sections[0].videos[0]);
+            }
+            
             setShowPaymentModal(false);
             setPaymentSelected(null);
         } catch (error) {
             alert('Failed to enroll');
         }
     };
+
 
     const handleVideoSelect = (video: any, isLocked: boolean) => {
         if (isLocked) return;
@@ -131,7 +143,7 @@ export default function SubjectDetailsPage() {
     if (!subject) return <div className="p-8 text-center text-2xl font-bold">Subject not found</div>;
 
     let globalVideoIndex = 0;
-    let isPreviousCompleted = true;
+    // Removed isPreviousCompleted restriction to allow watching any video once enrolled
 
     return (
         <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
@@ -168,19 +180,26 @@ export default function SubjectDetailsPage() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
 
                     {activeVideo ? (
-                        <div className="w-full max-w-6xl space-y-8 relative z-10">
-                            <div className="aspect-video glass-card border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                        <div className="w-full max-w-6xl space-y-8 relative z-10 animate-in fade-in duration-700">
+                            <div className="aspect-video glass-card border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black">
                                 <YouTube
                                     videoId={extractYoutubeId(activeVideo.video_url) || ''}
                                     opts={{ width: '100%', height: '100%', playerVars: { autoplay: 1, modestbranding: 1 } }}
-                                    className="w-full h-full"
+                                    className="w-full h-full shadow-inner"
                                     onStateChange={handleStateChange}
                                     onReady={handlePlayerReady}
                                 />
                             </div>
-                            <div className="px-6">
-                                <h2 className="text-3xl font-black tracking-tight mb-3">{activeVideo.title}</h2>
-                                <p className="text-muted-foreground font-light leading-relaxed max-w-3xl">This lesson covers essential concepts within {subject.title}. Watch fully to unlock the next certificate module.</p>
+                            <div className="px-6 flex justify-between items-start">
+                                <div>
+                                    <h2 className="text-3xl font-black tracking-tight mb-3">{activeVideo.title}</h2>
+                                    <p className="text-muted-foreground font-light leading-relaxed max-w-2xl">This professional lesson covers essential concepts within {subject.title}. Master this module to advance your skills.</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    <div className="px-4 py-2 glass-card rounded-xl text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                                        <Clock size={14} /> {Math.floor(activeVideo.duration / 60)}:{(activeVideo.duration % 60).toString().padStart(2, '0')}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ) : (
@@ -206,7 +225,7 @@ export default function SubjectDetailsPage() {
                 {/* Sidebar */}
                 <aside className="w-96 border-l border-white/5 bg-card flex flex-col overflow-hidden relative z-20">
                     <div className="p-8 border-b border-white/5">
-                        <h3 className="text-lg font-black tracking-tight mb-1">Course Content</h3>
+                        <h3 className="text-lg font-black tracking-tight mb-1" id="course-content-title">Course Content</h3>
                         <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest flex items-center gap-2">
                             <Clock size={12} /> {subject.sections.reduce((acc: number, sec: any) => acc + sec.videos.length, 0)} Professional Lessons
                         </p>
@@ -220,20 +239,21 @@ export default function SubjectDetailsPage() {
                                 </div>
                                 <div className="flex flex-col">
                                     {section.videos.map((video: any, vIdx: number) => {
-                                        const isLocked = !subject.isEnrolled || (!isPreviousCompleted && globalVideoIndex !== 0);
+                                        // Disabled sequential locking: users can watch any video once enrolled
+                                        const isLocked = !subject.isEnrolled; 
                                         const isCompleted = video.is_completed === 1;
                                         const isActive = activeVideo?.id === video.id;
 
-                                        if (!isCompleted) isPreviousCompleted = false;
                                         globalVideoIndex++;
 
                                         return (
                                             <button
                                                 key={video.id}
+                                                id={`video-btn-${video.id}`}
                                                 onClick={() => handleVideoSelect(video, isLocked)}
                                                 disabled={isLocked}
                                                 className={clsx(
-                                                    "px-8 py-5 text-left flex gap-4 transition-all relative border-b border-white/5",
+                                                    "px-8 py-5 text-left flex gap-4 transition-all relative border-b border-white/5 group",
                                                     isActive ? "bg-primary/10" : "hover:bg-white/5",
                                                     isLocked ? "opacity-30" : "cursor-pointer"
                                                 )}
@@ -245,11 +265,11 @@ export default function SubjectDetailsPage() {
                                                     ) : isLocked ? (
                                                         <Lock size={18} className="text-muted-foreground" />
                                                     ) : (
-                                                        <PlayCircle size={18} className={isActive ? "text-primary" : "text-muted-foreground"} />
+                                                        <PlayCircle size={18} className={isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary transition-colors"} />
                                                     )}
                                                 </div>
                                                 <div className="flex-1 overflow-hidden">
-                                                    <p className={clsx("font-bold text-sm line-clamp-2 transition-colors", isActive ? "text-primary" : "text-foreground")}>
+                                                    <p className={clsx("font-bold text-sm line-clamp-2 transition-colors", isActive ? "text-primary" : "text-foreground group-hover:text-primary")}>
                                                         {video.title}
                                                     </p>
                                                     <div className="flex items-center gap-2 mt-2">
@@ -275,6 +295,7 @@ export default function SubjectDetailsPage() {
                     </div>
                 </aside>
             </div>
+
 
             {/* Payment Modal */}
             {showPaymentModal && (
