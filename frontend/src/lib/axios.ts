@@ -6,8 +6,12 @@ const getBaseURL = () => {
         return process.env.NEXT_PUBLIC_API_URL;
     }
 
-    // STANDALONE MODE: Use Next.js API Routes in the same frontend
-    // This ensures Vercel works even if the user hasn't deployed a separate backend.
+    if (typeof window !== 'undefined') {
+        const origin = window.location.origin;
+        return `${origin}/api`;
+    }
+    
+    // In SSR, use relative /api
     return '/api';
 };
 
