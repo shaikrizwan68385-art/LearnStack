@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MOCK_USER } from '../../../lib/mock-data';
+import { MOCK_USER } from '../../../../lib/mock-data';
 
 export async function POST(req: Request) {
     const { email, password } = await req.json();

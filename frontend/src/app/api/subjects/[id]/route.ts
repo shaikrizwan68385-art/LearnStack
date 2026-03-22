@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { SUBJECTS, SECTIONS, VIDEOS } from '../../../lib/mock-data';
+import { SUBJECTS, SECTIONS, VIDEOS } from '../../../../lib/mock-data';
 
 export async function GET(
     req: Request,
