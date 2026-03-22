@@ -8,7 +8,7 @@ import api from '@/lib/axios';
 export default function FloatingAI() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{ role: 'ai' | 'user'; text: string }[]>([
-        { role: 'ai', text: 'Hello! I am StackAI, your LearnStack learning companion. How can I help you today?' }
+        { role: 'ai', text: 'Hello! I am QuestAI, your Academy companion. How can I help you today?' }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -119,9 +119,9 @@ export default function FloatingAI() {
                             <Bot className="text-white" size={24} />
                         </div>
                         <div>
-                            <h3 className="text-white font-black text-lg leading-none">StackAI</h3>
+                            <h3 className="text-white font-black text-lg leading-none">QuestAI</h3>
                             <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest mt-1 italic flex items-center gap-1">
-                                <Sparkles size={10} /> Powered by LearnStack-Engine
+                                <Sparkles size={10} /> Powered by Quest-Engine
                             </p>
                         </div>
                     </div>
@@ -162,7 +162,7 @@ export default function FloatingAI() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                placeholder="Ask StackAI anything..."
+                                placeholder="Ask QuestAI anything..."
                                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-6 pr-14 text-sm text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-gray-600"
                             />
                             <button

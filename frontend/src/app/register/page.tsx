@@ -56,7 +56,7 @@ export default function Register() {
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                         <input
                             type="email"
-                            placeholder="Ask QuestAI about your courses..."
+                            placeholder="Email address"
                             className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 text-foreground rounded-2xl focus:outline-none focus:border-primary/50 transition-all font-light"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}

@@ -68,7 +68,7 @@ export default function DashboardPage() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Ask StackAI about your courses..."
+                                placeholder="Ask QuestAI about your courses..."
                                 className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-14 text-sm focus:outline-none focus:border-primary/50 transition-all placeholder:text-gray-600"
                             />
                             <Search className="absolute left-4 text-gray-600 group-focus-within:text-primary transition-colors" size={18} />
