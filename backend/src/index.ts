@@ -24,7 +24,7 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/ai', aiRoutes);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('<h1>Welcome to LearnStack API</h1><p>The server is running correctly. Please visit <a href="http://localhost:3000">localhost:3000</a> for the frontend.</p>');
+  res.send('<h1>Welcome to Quest Academy API</h1><p>The server is running correctly. Please visit our professional Academy dashboard for instructions.</p>');
 });
 
 app.get('/health', (req: Request, res: Response) => {
